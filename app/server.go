@@ -27,17 +27,19 @@ func main() {
 }
 
 func handleClient(conn net.Conn) {
-	buf := make([]byte, 1024)
-	n, err := conn.Read(buf)
-	if err != nil {
-		fmt.Println("Error while reading: ", err.Error())
-		return
+	for {
+		buf := make([]byte, 1024)
+		n, err := conn.Read(buf)
+		if err != nil {
+			fmt.Println("Error while reading: ", err.Error())
+			continue
+		}
+
+		fmt.Printf("Received message: %s", string(buf[:n]))
+		if _, err := conn.Write([]byte("+PONG\r\n")); err != nil {
+			fmt.Println("Error while responding: ", err.Error())
+			return
+		}
 	}
 
-	fmt.Printf("Received message: %s", string(buf[:n]))
-	conn.Write([]byte("+PONG\r\n"))
-	if err != nil {
-		fmt.Println("Error while responding: ", err.Error())
-		return
-	}
 }
