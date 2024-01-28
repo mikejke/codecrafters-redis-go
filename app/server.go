@@ -22,7 +22,7 @@ func main() {
 			os.Exit(1)
 		}
 		defer conn.Close()
-		handleClient(conn)
+		go handleClient(conn)
 	}
 }
 
@@ -35,7 +35,7 @@ func handleClient(conn net.Conn) {
 			continue
 		}
 
-		fmt.Printf("Received message: %s", string(buf[:n]))
+		fmt.Printf("Received message from %s: %s", conn.RemoteAddr(), string(buf[:n]))
 		if _, err := conn.Write([]byte("+PONG\r\n")); err != nil {
 			fmt.Println("Error while responding: ", err.Error())
 			return
