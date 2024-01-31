@@ -64,7 +64,7 @@ func handleConnection(conn net.Conn) {
 			case PING:
 				client.conn.Write([]byte("+PONG\r\n"))
 			case ECHO:
-				var message string
+				message := "+"
 				for i := 1; i < len(c); i++ {
 					message += fmt.Sprintf("%v ", c[i])
 				}
