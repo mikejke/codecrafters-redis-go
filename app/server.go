@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"strings"
@@ -43,12 +44,19 @@ func handleConnection(conn net.Conn) {
 
 	for {
 		result, err := client.Read()
+		if err == io.EOF {
+			fmt.Printf("Client[%s] ended connection", client.conn.RemoteAddr().String())
+			return
+		}
+
 		if err != nil {
 			fmt.Println("Error: ", err.Error())
 			return
 		}
 
 		content := result.Content()
+
+		fmt.Printf("Received message from client [%s]: %v", client.conn.RemoteAddr().String(), content)
 
 		switch c := content.(type) {
 		// case string:
