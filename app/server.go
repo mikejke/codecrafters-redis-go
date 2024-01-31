@@ -64,7 +64,10 @@ func handleConnection(conn net.Conn) {
 		// 		client.conn.Write([]byte("+PONG\r\n"))
 		// 	}
 		case []interface{}:
-			if c[0] == ECHO {
+			switch c[0] {
+			case PING:
+				client.conn.Write([]byte("+PONG\r\n"))
+			case ECHO:
 				var message string
 				for i := 1; i < len(c); i++ {
 					message += fmt.Sprintf("%v ", c[i])
@@ -73,7 +76,7 @@ func handleConnection(conn net.Conn) {
 			}
 		default:
 			fmt.Println("unknown command")
-			client.conn.Write([]byte("+PONG\r\n"))
+			return
 		}
 	}
 }
