@@ -59,19 +59,22 @@ func handleConnection(conn net.Conn) {
 		fmt.Printf("Received message from client [%s]: %v", client.conn.RemoteAddr().String(), content)
 
 		switch c := content.(type) {
-		// case string:
-		// 	if c == PING {
-		// 		client.conn.Write([]byte("+PONG\r\n"))
-		// 	}
+		case string:
+			if strings.ToUpper(c) == PING {
+				fmt.Println("Recieved ping command, responeded with '+PONG\r\n'")
+				client.conn.Write([]byte("+PONG\r\n"))
+			}
 		case []interface{}:
-			switch c[0] {
+			switch strings.ToUpper(fmt.Sprintf("%v", c[0])) {
 			case PING:
+				fmt.Println("Recieved ping command, responeded with '+PONG\r\n'")
 				client.conn.Write([]byte("+PONG\r\n"))
 			case ECHO:
 				var message string
 				for i := 1; i < len(c); i++ {
 					message += fmt.Sprintf("%v ", c[i])
 				}
+				fmt.Println("Recieved echo command, responeded with '", strings.TrimRight(message, " "), "'")
 				client.conn.Write([]byte(strings.TrimRight(message, " ")))
 			}
 		default:
