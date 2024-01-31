@@ -45,7 +45,7 @@ func handleConnection(conn net.Conn) {
 	for {
 		result, err := client.Read()
 		if err == io.EOF {
-			fmt.Printf("Client[%s] ended connection", client.conn.RemoteAddr().String())
+			fmt.Printf("Client[%s] ended connection\n", client.conn.RemoteAddr().String())
 			return
 		}
 
@@ -56,18 +56,18 @@ func handleConnection(conn net.Conn) {
 
 		content := result.Content()
 
-		fmt.Printf("Received message from client [%s]: %v", client.conn.RemoteAddr().String(), content)
+		fmt.Printf("Received message from client [%s]: %v\n", client.conn.RemoteAddr().String(), content)
 
 		switch c := content.(type) {
 		case string:
 			if strings.ToUpper(c) == PING {
-				fmt.Println("Recieved ping command, responeded with '+PONG\r\n'")
+				fmt.Println("Recieved ping (1) command, responeded with '+PONG\r\n'")
 				client.conn.Write([]byte("+PONG\r\n"))
 			}
 		case []interface{}:
 			switch strings.ToUpper(fmt.Sprintf("%v", c[0])) {
 			case PING:
-				fmt.Println("Recieved ping command, responeded with '+PONG\r\n'")
+				fmt.Println("Recieved ping (2) command, responeded with '+PONG\r\n'")
 				client.conn.Write([]byte("+PONG\r\n"))
 			case ECHO:
 				var message string
