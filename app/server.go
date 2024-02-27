@@ -32,6 +32,8 @@ func main() {
 const (
 	PING = "PING"
 	ECHO = "ECHO"
+	SET  = "SET"
+	GET  = "GET"
 )
 
 func handleConnection(conn net.Conn) {
@@ -45,7 +47,7 @@ func handleConnection(conn net.Conn) {
 	for {
 		result, err := client.Read()
 		if err == io.EOF {
-			fmt.Printf("Client[%s] ended connection\n", client.conn.RemoteAddr().String())
+			fmt.Println("EOF")
 			return
 		}
 
@@ -54,21 +56,33 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 
-		content := result.Content()
+		fmt.Println("RECIEVED", result)
 
-		fmt.Printf("Received message from client [%s]: %v\n", client.conn.RemoteAddr().String(), content)
-
-		switch c := content.(type) {
+		switch c := result.Content().(type) {
 		case []interface{}:
 			switch strings.ToUpper(fmt.Sprintf("%v", c[0])) {
 			case PING:
-				client.conn.Write([]byte("+PONG\r\n"))
+				client.Send([]interface{}{"PONG"})
 			case ECHO:
-				message := "+"
-				for i := 1; i < len(c); i++ {
-					message += fmt.Sprintf("%v ", c[i])
+				client.Send(c[1:])
+			case SET:
+				key, ok := c[1].(string)
+				if !ok {
+					fmt.Println("key is not a string")
+					return
 				}
-				client.conn.Write([]byte(strings.TrimRight(message, " ") + "\r\n"))
+
+				value := c[2]
+				client.Store(key, value)
+				client.Send([]interface{}{"OK"})
+			case GET:
+				key, ok := c[1].(string)
+				if !ok {
+					fmt.Println("key is not a string")
+					return
+				}
+				storedValue := client.Get(key)
+				client.Send(storedValue)
 			}
 		default:
 			fmt.Println("unknown command")
