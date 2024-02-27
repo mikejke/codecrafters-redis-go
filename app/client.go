@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"time"
 )
 
 var (
@@ -14,7 +15,7 @@ type Client struct {
 	conn    net.Conn
 	reader  *Reader
 	writer  *Writer
-	storage map[string][]interface{}
+	storage map[string]interface{}
 }
 
 func NewClient(conn net.Conn) (*Client, error) {
@@ -22,7 +23,7 @@ func NewClient(conn net.Conn) (*Client, error) {
 		conn:    conn,
 		reader:  NewReader(conn),
 		writer:  NewWriter(conn),
-		storage: make(map[string][]interface{}),
+		storage: make(map[string]interface{}),
 	}, nil
 }
 
@@ -34,7 +35,7 @@ func (c *Client) Read() (*Result, error) {
 	return c.reader.Read()
 }
 
-func (c *Client) Send(values []interface{}) error {
+func (c *Client) Send(values ...interface{}) error {
 	if err := c.writer.WriteArray(values); err != nil {
 		return fmt.Errorf("failed to execute operation: %v", values[0])
 	}
@@ -42,14 +43,23 @@ func (c *Client) Send(values []interface{}) error {
 	return nil
 }
 
-func (c *Client) Store(key string, values ...interface{}) {
-	c.storage[key] = values
+func (c *Client) Store(key string, value interface{}) {
+	c.storage[key] = value
 }
 
-func (c *Client) Get(key string) []interface{} {
-	if values, ok := c.storage[key]; ok {
-		return values
+func (c *Client) Get(key string) interface{} {
+	if value, ok := c.storage[key]; ok {
+		return value
 	}
 
-	return []interface{}{nil}
+	return nil
+}
+
+func (c *Client) SetExpirationTime(key string, expirationTime int) {
+	fmt.Println("planned to delete", key)
+	go func() {
+		time.Sleep(time.Millisecond * time.Duration(expirationTime))
+		delete(c.storage, key)
+		fmt.Println("key", key, "was deleted")
+	}()
 }

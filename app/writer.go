@@ -62,6 +62,7 @@ func (w *Writer) WriteArray(values []interface{}) error {
 		return w.write(ArrayType, []byte("-1"), Separator)
 	}
 
+	// send array size
 	// if err := w.write(
 	// 	ArrayType,
 	// 	[]byte(strconv.FormatInt(int64(len(values)), 10)),
@@ -73,11 +74,23 @@ func (w *Writer) WriteArray(values []interface{}) error {
 	for _, v := range values {
 		switch t := v.(type) {
 		case int:
-		case int8:
-		case int16:
-		case int32:
-		case int64:
 			if err := w.WriteInt64(int64(t)); err != nil {
+				return err
+			}
+		case int8:
+			if err := w.WriteInt64(int64(t)); err != nil {
+				return err
+			}
+		case int16:
+			if err := w.WriteInt64(int64(t)); err != nil {
+				return err
+			}
+		case int32:
+			if err := w.WriteInt64(int64(t)); err != nil {
+				return err
+			}
+		case int64:
+			if err := w.WriteInt64(t); err != nil {
 				return err
 			}
 		case string:
@@ -97,7 +110,7 @@ func (w *Writer) WriteArray(values []interface{}) error {
 				return err
 			}
 		default:
-			return fmt.Errorf("unsupported type: the value [%#v] is not supported by this client, supported types are int8 to int64, strings, []byte, nil, and []interface{} of these same types", v)
+			return fmt.Errorf("unsupported type")
 		}
 	}
 

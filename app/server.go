@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -34,6 +35,7 @@ const (
 	ECHO = "ECHO"
 	SET  = "SET"
 	GET  = "GET"
+	PX   = "PX"
 )
 
 func handleConnection(conn net.Conn) {
@@ -60,9 +62,9 @@ func handleConnection(conn net.Conn) {
 		case []interface{}:
 			switch strings.ToUpper(fmt.Sprintf("%v", c[0])) {
 			case PING:
-				client.Send([]interface{}{"PONG"})
+				client.Send("PONG")
 			case ECHO:
-				client.Send(c[1:])
+				client.Send(c[1:]...)
 			case SET:
 				key, ok := c[1].(string)
 				if !ok {
@@ -72,15 +74,32 @@ func handleConnection(conn net.Conn) {
 
 				value := c[2]
 				client.Store(key, value)
-				client.Send([]interface{}{"OK"})
+
+				if len(c[1:]) == 4 && strings.ToUpper(fmt.Sprintf("%v", c[3])) == PX {
+					expiryTime, ok := c[4].(string)
+					if !ok {
+						fmt.Println("expiry time is not integer")
+						return
+					}
+					fmt.Println(expiryTime)
+
+					parsedTime, err := strconv.Atoi(expiryTime)
+					if err != nil {
+						fmt.Println("failed to parse expiry time")
+						return
+					}
+
+					client.SetExpirationTime(key, parsedTime)
+				}
+
+				client.Send("OK")
 			case GET:
 				key, ok := c[1].(string)
 				if !ok {
 					fmt.Println("key is not a string")
 					return
 				}
-				storedValue := client.Get(key)
-				client.Send(storedValue)
+				client.Send(client.Get(key))
 			}
 		default:
 			fmt.Println("unknown command")
