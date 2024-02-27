@@ -56,8 +56,6 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 
-		fmt.Println("RECIEVED", result)
-
 		switch c := result.Content().(type) {
 		case []interface{}:
 			switch strings.ToUpper(fmt.Sprintf("%v", c[0])) {
