@@ -63,12 +63,14 @@ func (w *Writer) WriteArray(values []interface{}) error {
 		return w.write(ArrayType, []byte("-1"), Separator)
 	}
 
-	if err := w.write(
-		ArrayType,
-		[]byte(strconv.FormatInt(int64(len(values)), 10)),
-		Separator,
-	); err != nil {
-		return err
+	if len(values) > 1 {
+		if err := w.write(
+			ArrayType,
+			[]byte(strconv.FormatInt(int64(len(values)), 10)),
+			Separator,
+		); err != nil {
+			return err
+		}
 	}
 
 	for _, v := range values {
