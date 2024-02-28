@@ -21,7 +21,7 @@ func (cmd Command) Config(args []interface{}) error {
 				return fmt.Errorf("key is not a string")
 			}
 
-			cmd.client.Send(config.Config.Get(key))
+			cmd.client.Send(key, config.Config.Get(key))
 		default:
 			return fmt.Errorf("unknown subcommand")
 		}

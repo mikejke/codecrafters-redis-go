@@ -56,10 +56,8 @@ func (c *Client) Get(key string) interface{} {
 }
 
 func (c *Client) SetExpirationTime(key string, expirationTime int) {
-	fmt.Println("planned to delete", key)
 	go func() {
 		time.Sleep(time.Millisecond * time.Duration(expirationTime))
 		delete(c.storage, key)
-		fmt.Println("key", key, "was deleted")
 	}()
 }
