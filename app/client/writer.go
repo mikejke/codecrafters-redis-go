@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ type Writer struct {
 	writer io.Writer
 }
 
+// NewWriter writer constructor
 func NewWriter(w io.Writer) *Writer {
 	return &Writer{
 		writer: w,
@@ -62,14 +63,13 @@ func (w *Writer) WriteArray(values []interface{}) error {
 		return w.write(ArrayType, []byte("-1"), Separator)
 	}
 
-	// send array size
-	// if err := w.write(
-	// 	ArrayType,
-	// 	[]byte(strconv.FormatInt(int64(len(values)), 10)),
-	// 	Separator,
-	// ); err != nil {
-	// 	return err
-	// }
+	if err := w.write(
+		ArrayType,
+		[]byte(strconv.FormatInt(int64(len(values)), 10)),
+		Separator,
+	); err != nil {
+		return err
+	}
 
 	for _, v := range values {
 		switch t := v.(type) {
