@@ -1,5 +1,5 @@
 package command
 
-func (cmd *Command) Ping() {
+func (cmd Command) Ping() {
 	cmd.client.Send("PONG")
 }

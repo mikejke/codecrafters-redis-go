@@ -8,19 +8,19 @@ import (
 
 const PX = "PX"
 
-func (cmd *Command) Set(args []interface{}) {
-	key, ok := args[1].(string)
+func (cmd Command) Set(args []interface{}) {
+	key, ok := args[0].(string)
 	if !ok {
 		fmt.Println("key is not a string")
 		return
 	}
 
-	value := args[2]
+	value := args[1]
 	cmd.client.Store(key, value)
 
 	// TODO: refactor this block of code
-	if len(args[1:]) == 4 && strings.ToUpper(fmt.Sprintf("%v", args[3])) == PX {
-		expiryTime, ok := args[4].(string)
+	if len(args[0:]) == 4 && strings.ToUpper(fmt.Sprintf("%v", args[2])) == PX {
+		expiryTime, ok := args[3].(string)
 		if !ok {
 			fmt.Println("expiry time is not integer")
 			return
