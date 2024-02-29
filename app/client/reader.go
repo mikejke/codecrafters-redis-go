@@ -11,6 +11,7 @@ import (
 
 const (
 	SimpleStringType = '+'
+	ErrorType        = '-'
 	BulkStringType   = '$'
 	ArrayType        = '*'
 	IntegerType      = ':'
@@ -98,6 +99,19 @@ func readRESP(r *bufio.Scanner) (*Result, error) {
 		case BulkStringType:
 			return &Result{
 				content: nil,
+			}, nil
+		case ErrorType:
+			// if an error just wrap the error and return it
+			return &Result{
+				content: errors.New(line[1:]),
+			}, nil
+		case IntegerType:
+			content, err := strconv.ParseInt(line[1:], 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse returned integer: %v (value: %v)", err, line)
+			}
+			return &Result{
+				content: content,
 			}, nil
 		case ArrayType:
 			length, err := strconv.ParseInt(line[1:], 10, 64)
