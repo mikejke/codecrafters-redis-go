@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestReader_Read(t *testing.T) {
+func TestReaderRead(t *testing.T) {
 	tt := []struct {
 		input  string
 		result interface{}
