@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/codecrafters-io/redis-starter-go/app/client"
@@ -16,19 +15,23 @@ const (
 	config = "CONFIG"
 )
 
-func HandleCommand(client *client.Client, content []interface{}) {
+func HandleCommand(client *client.Client, content []interface{}) error {
 	cmd := command.NewCommand(client)
 
-	switch strings.ToUpper(fmt.Sprintf("%v", content[0])) {
-	case ping:
-		cmd.Ping()
-	case echo:
-		cmd.Echo(content[1:])
-	case set:
-		cmd.Set(content[1:])
-	case get:
-		cmd.Get(content[1])
-	case config:
-		cmd.Config(content[1:])
+	if command, ok := content[0].(string); ok {
+		switch strings.ToUpper(command) {
+		case ping:
+			return cmd.Ping()
+		case echo:
+			return cmd.Echo(content[1:])
+		case set:
+			return cmd.Set(content[1:])
+		case get:
+			return cmd.Get(content[1])
+		case config:
+			return cmd.Config(content[1:])
+		}
 	}
+
+	return nil
 }

@@ -1,7 +1,7 @@
 package command
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 
 	"github.com/codecrafters-io/redis-starter-go/app/config"
@@ -18,15 +18,15 @@ func (cmd Command) Config(args []interface{}) error {
 		case GET:
 			key, ok := args[1].(string)
 			if !ok {
-				return fmt.Errorf("key is not a string")
+				return errors.New("key is not a string")
 			}
 
 			cmd.client.Send(key, config.Config.Get(key))
 		default:
-			return fmt.Errorf("unknown subcommand")
+			return errors.New("unknown subcommand")
 		}
 	default:
-		return fmt.Errorf("unknown subcommand")
+		return errors.New("unknown subcommand")
 	}
 	return nil
 }

@@ -64,11 +64,11 @@ func splitter(data []byte, atEOF bool) (int, []byte, error) {
 		}
 
 		if length == -1 {
-			return 5, []byte("$"), nil
+			return 5, []byte{BulkStringType}, nil
 		}
 
 		if length == 0 {
-			return 6, []byte("+"), nil
+			return 6, []byte{SimpleStringType}, nil
 		}
 
 		expectedEnding := found + int(length) + 4

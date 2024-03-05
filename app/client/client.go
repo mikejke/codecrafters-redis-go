@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"time"
+
+	"github.com/codecrafters-io/redis-starter-go/app/cache"
 )
 
 var (
@@ -12,18 +13,18 @@ var (
 )
 
 type Client struct {
-	conn    net.Conn
-	reader  *Reader
-	writer  *Writer
-	storage map[string]interface{}
+	conn   net.Conn
+	reader *Reader
+	writer *Writer
+	Cache  *cache.Cache
 }
 
 func NewClient(conn net.Conn) (*Client, error) {
 	return &Client{
-		conn:    conn,
-		reader:  NewReader(conn),
-		writer:  NewWriter(conn),
-		storage: make(map[string]interface{}),
+		conn:   conn,
+		reader: NewReader(conn),
+		writer: NewWriter(conn),
+		Cache:  cache.NewCache(),
 	}, nil
 }
 
@@ -41,23 +42,4 @@ func (c *Client) Send(values ...interface{}) error {
 	}
 
 	return nil
-}
-
-func (c *Client) Store(key string, value interface{}) {
-	c.storage[key] = value
-}
-
-func (c *Client) Get(key string) interface{} {
-	if value, ok := c.storage[key]; ok {
-		return value
-	}
-
-	return nil
-}
-
-func (c *Client) SetExpirationTime(key string, expirationTime int) {
-	go func() {
-		time.Sleep(time.Millisecond * time.Duration(expirationTime))
-		delete(c.storage, key)
-	}()
 }

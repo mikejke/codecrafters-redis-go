@@ -40,7 +40,7 @@ func main() {
 func handleConnection(conn net.Conn) {
 	client, err := client.NewClient(conn)
 	if err != nil {
-		fmt.Println("Error: ", err.Error())
+		fmt.Println("Error:", err)
 		return
 	}
 	defer client.Close()
@@ -48,20 +48,23 @@ func handleConnection(conn net.Conn) {
 	for {
 		result, err := client.Read()
 		if err == io.EOF {
-			fmt.Println("EOF")
+			fmt.Println("Error: EOF")
 			return
 		}
 
 		if err != nil {
-			fmt.Println("Error: ", err.Error())
+			fmt.Println("Error:", err)
 			return
 		}
 
-		switch content := result.Content().(type) {
-		case []interface{}:
-			handler.HandleCommand(client, content)
-		default:
-			fmt.Println("unknown command")
+		if content, ok := result.Content().([]interface{}); ok {
+			err := handler.HandleCommand(client, content)
+			if err != nil {
+				fmt.Println("unexpected content")
+				return
+			}
+		} else {
+			fmt.Println("unexpected content", content)
 			return
 		}
 	}

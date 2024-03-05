@@ -1,12 +1,13 @@
 package command
 
-import "fmt"
+import (
+	"errors"
+)
 
-func (cmd Command) Get(key interface{}) {
+func (cmd Command) Get(key interface{}) error {
 	parsedKey, ok := key.(string)
 	if !ok {
-		fmt.Println("key is not a string")
-		return
+		return errors.New("key is not a string")
 	}
-	cmd.client.Send(cmd.client.Get(parsedKey))
+	return cmd.client.Send(cmd.client.Cache.Get(parsedKey))
 }
