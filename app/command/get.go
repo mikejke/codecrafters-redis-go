@@ -14,5 +14,5 @@ func (cmd Command) Get(key interface{}) error {
 		return cmd.client.Send(value)
 	}
 
-	return nil
+	return cmd.client.Send(nil)
 }
