@@ -29,13 +29,13 @@ func (c *Cache) Set(item *Item) {
 		duration = item.TTL
 	}
 
-	go c.ScheduleExpirtaion(item.Key, duration)()
+	go c.scheduleExpiration(item.Key, duration)()
 	c.cache[item.Key] = item.Value
 }
 
-func (c *Cache) ScheduleExpirtaion(key string, duration time.Duration) func() {
+func (c *Cache) scheduleExpiration(key string, duration time.Duration) func() {
 	return func() {
-		time.Sleep(time.Duration(duration.Milliseconds()))
+		time.Sleep(duration)
 		fmt.Printf("delete expired key %s from cache \n", key)
 		delete(c.cache, key)
 	}

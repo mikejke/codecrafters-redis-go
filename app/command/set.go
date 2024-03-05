@@ -26,17 +26,17 @@ func (cmd Command) Set(args []interface{}) error {
 
 	// TODO: refactor this block of code
 	if len(args[0:]) == 4 && strings.ToUpper(fmt.Sprintf("%v", args[2])) == PX {
-		expiryTime, ok := args[3].(string)
+		ttl, ok := args[3].(string)
 		if !ok {
 			return errors.New("expiry time is not integer")
 		}
 
-		parsedTime, err := strconv.Atoi(expiryTime)
+		parsedTTL, err := strconv.ParseInt(ttl, 10, 64)
 		if err != nil {
 			return errors.New("failed to parse TTL")
 		}
 
-		item.TTL = time.Duration(parsedTime)
+		item.TTL = time.Duration(parsedTTL) * time.Millisecond
 	}
 
 	cmd.client.Cache.Set(item)
