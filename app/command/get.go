@@ -9,5 +9,10 @@ func (cmd Command) Get(key interface{}) error {
 	if !ok {
 		return errors.New("key is not a string")
 	}
-	return cmd.client.Send(cmd.client.Cache.Get(parsedKey))
+
+	if value, ok := cmd.client.Cache.Get(parsedKey); ok {
+		return cmd.client.Send(value)
+	}
+
+	return nil
 }

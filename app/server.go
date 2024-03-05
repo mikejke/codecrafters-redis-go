@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -40,31 +41,32 @@ func main() {
 func handleConnection(conn net.Conn) {
 	client, err := client.NewClient(conn)
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println(err)
 		return
 	}
 	defer client.Close()
 
 	for {
 		result, err := client.Read()
-		if err == io.EOF {
-			fmt.Println("Error: EOF")
+		if errors.Is(err, io.EOF) {
+			fmt.Println(err)
 			return
 		}
 
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Println(err)
 			return
 		}
 
 		if content, ok := result.Content().([]interface{}); ok {
 			err := handler.HandleCommand(client, content)
 			if err != nil {
-				fmt.Println("unexpected content")
+				fmt.Println(err)
 				return
 			}
 		} else {
-			fmt.Println("unexpected content", content)
+			err = errors.New("unexpected content")
+			fmt.Println(err)
 			return
 		}
 	}
